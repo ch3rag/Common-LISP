@@ -59,3 +59,6 @@
 
 (format t "(log 1000 10) = ~a ~%" (log 1000 10))
 ;3
+
+;Some Other Functions
+;sin, cos, tan, asin, acos, atan
