@@ -1,8 +1,8 @@
 ;Conditionals
 ;progn is used to define multiple statements in one statements
 ;defparameter is similar to defvar
-;Logical Operators = > < >= <=
-;and or not
+;Realtional Operators ==> ( = , > , < , >= , <= )
+;Logical Operators ==> ( and , or , not )
 
 (defparameter *num* 2)
 
