@@ -12,7 +12,7 @@
 (write (* 10 (/ 9 5)))
 ;18
 
-;Single Quotes are used to Supress Evalution
+;Single Quotes are used to Supress Evaluation
 
 (write '(+ 1 2 3))
 ;(+ 1 2 3)
