@@ -83,6 +83,10 @@
 
 ; THE WHERE CLAUSE 
 
+#||
+
+;THIS IS KINDA UNEFFICIENT DUE TO UNNECESSARY COMPARISONS
+
 (defun where (&key title artist rating (ripped nil ripped-p))
 	#'(lambda (cd)
 		(and 
@@ -90,6 +94,30 @@
 			(if artist (equal (getf cd :artist) artist) t)
 			(if rating (equal (getf cd :rating) rating) t)
 			(if ripped-p (equal (getf cd :ripped) ripped) t))))
+
+
+||#
+
+; WHERE USING MACRO
+; GENERATES ONLY THE COMPARISIONS BASED OF ARGUMENTS PASSED
+
+
+(defun make-comparision-exp (field value)
+	`(equal (getf cd ,field) ,value))
+
+;>>>(make-comparison-expr :rating 10)
+;	(EQUAL (GETF CD :RATING) 10)
+
+(defun make-comparision-list (fields)
+	(loop while fields
+		collect (make-comparision-exp (pop fields) (pop fields))))
+
+
+
+(defmacro where (&rest clauses)
+	`#'(lambda (cd)
+		 (and ,@(make-comparision-list clauses))))
+
 
 
 
