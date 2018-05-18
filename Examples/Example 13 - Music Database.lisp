@@ -76,7 +76,7 @@
 ; c-p will be set true or false based on whether c is passed or not as an argument
 ; b will be set to 20 and c will be set to 30 if no argument passed
 
-; GENRALIZED SELECTOR 
+; GENERALIZED SELECTOR 
 
 (defun select (selector-fn)
 	(remove-if-not selector-fn *db*))
