@@ -111,8 +111,93 @@
 
 
 (defun length-encode-check (sequence)
-	(if (equal (car sequence) (car (cdr sequence))) (length-encode-check (cdr sequence))
-		(cdr sequence)))
+	(cond ((null sequence) '())
+		  ((equal (car sequence) (car (cdr sequence))) (length-encode-check (cdr sequence)))
+		  (t (cdr sequence))))
+
+; Modified run-length encoding
+; >>> (encode-modified '(a a a a b c c a a d e e e e))
+; ((4 A) B (2 C) (2 A) D (4 E))
+
+(defun run-length-helper (sequence length)
+	(cond ((null sequence) '())
+		((equal (car sequence) (cadr sequence)) (setf length (1+ length)) (run-length-helper (cdr sequence) length))
+		((= length 0) (car sequence))
+		(t (list (1+ length) (car sequence)))))
+
+(defun run-length (sequence)
+	(if (null sequence) '()
+	(cons (run-length-helper sequence 0) (run-length (run-length-check sequence)))))
+
+
+(defun run-length-check (sequence)
+	(cond ((null sequence) '())
+		((equal (car sequence) (car (cdr sequence))) (run-length-check (cdr sequence)))
+		(t (cdr sequence))))
+
+; DECODING ABOVE LISTS
+
+(defun decode-list-builder (length element)
+	(if (= length 0) '()
+		(cons element (decode-list-builder (- length 1) element))))
+
+
+(defun decode-helper (sequence)
+	(if (not (listp sequence)) (list sequence)
+		(decode-list-builder (car sequence) (cadr sequence))))
+
+(defun decode (sequence)
+	(if (null sequence) '()
+	 (append (decode-helper (car sequence)) (decode (cdr sequence)))))
+
+; >>> (repli '(a b c) 3)
+; (A A A B B B C C C)
+
+(defun replicate-helper (element times)
+	(if (= times 0) '()
+		(cons element (replicate-helper element (- times 1)))))
+
+(defun replicate (sequence times)
+	(if (null sequence) '()
+		(append (replicate-helper (car sequence) times) (replicate (cdr sequence) times))))
+
+
+; Drop every N'th element from a list.
+; >>> (drop '(a b c d e f g h i k) 3)
+; (A B D E G H K)
+
+(defun drop-helper (sequence position current)
+	(cond ((= position 0) '()) 
+		 ((null sequence) '())
+		 ((= (mod current position) 0) (drop-helper (cdr sequence) position 1))
+		 (t (cons (car sequence) (drop-helper (cdr sequence) position (+ 1 current))))))
+
+
+(defun drop (sequence position)
+	(if (null sequence) '()
+		(drop-helper sequence position 1)))
+
+
+
+; >>> (split '(a b c d e f g h i k) 3)
+; ( (A B C) (D E F G H I K))
+
+(defun split-before (sequence position)
+	(if (= position 0) '()
+	 (cons (car sequence) (split-helper (cdr sequence) (- position 1)))))
+
+(defun split-after (sequence position)
+	(if (= position 0) sequence
+		(split-after (cdr sequence) (- position 1))))
+
+
+(defun split (sequence position)
+	(cond ((null sequence) '())
+		((= position 0) '())
+		((> position (list-length sequence)) sequence)
+		(t (list (split-before sequence position) (split-after sequence position)))))
+
+
 
 		
 
