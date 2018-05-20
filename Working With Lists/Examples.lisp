@@ -71,5 +71,48 @@
 		(t (append (list (car sequence)) (flatten (cdr sequence))))))
 
 
+
+; >>> (compress '(a a a a a b b b c c c c c d d a a a))
+; (a b c d a)
+
+(defun compress (sequence)
+	(cond ((null sequence) '())
+		((equal (car sequence) (car (cdr sequence))) (compress (cdr sequence)))
+		(t (cons (car sequence) (compress (cdr sequence))))))
+		
+; >>> (pack '(a a a a b c c a a d e e e e))
+; ((A A A A) (B) (C C) (A A) (D) (E E E E))
+
+(defun pack-helper (sequence)
+	(cond ((null sequence) '())
+		((equal (car sequence) (car (cdr sequence))) (cons (car sequence) (pack-helper (cdr sequence))))
+		(t (list (car sequence)))))
+
+(defun pack-check (sequence)
+	(if (equal (car sequence) (car (cdr sequence))) (pack-check (cdr sequence))
+		(cdr sequence)))
+
+(defun pack (sequence)
+	(if (null sequence) '()
+		(cons (pack-helper sequence) (pack (pack-check sequence)))))
+
+
+; >>> (length-encode '(a a a a b b b c d d d d d))
+; ((4 a)(3 b)(5 d))
+
+(defun length-encode-helper (sequence length)
+	(cond ((null sequence) '())
+		((equal (car sequence) (car (cdr sequence))) (setf length (+ 1 length)) (length-encode-helper (cdr sequence) length))
+		(t (list (1+ length) (car sequence)))))
+
+(defun length-encode (sequence)
+	(if (null sequence) '()
+	(cons (length-encode-helper sequence 0) (length-encode (length-encode-check (cdr sequence))))))
+
+
+(defun length-encode-check (sequence)
+	(if (equal (car sequence) (car (cdr sequence))) (length-encode-check (cdr sequence))
+		(cdr sequence)))
+
 		
 
