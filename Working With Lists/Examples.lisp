@@ -184,7 +184,7 @@
 
 (defun split-before (sequence position)
 	(if (= position 0) '()
-	 (cons (car sequence) (split-helper (cdr sequence) (- position 1)))))
+	 (cons (car sequence) (split-before (cdr sequence) (- position 1)))))
 
 (defun split-after (sequence position)
 	(if (= position 0) sequence
@@ -192,10 +192,68 @@
 
 
 (defun split (sequence position)
+	(if (< position 0) (setf position (+ (list-length sequence) position)))
 	(cond ((null sequence) '())
-		((= position 0) '())
+		((<= position 0) '())
 		((> position (list-length sequence)) sequence)
 		(t (list (split-before sequence position) (split-after sequence position)))))
+
+
+; >>> (slice '(a b c d e f g h i k) 3 7)
+; (C D E F G)
+
+(defun slice-helper (sequence start end &optional (initial 1))
+	(cond ((or (> initial end) (null sequence))'())
+		((>= initial start) (cons (car sequence) (slice-helper (cdr sequence) start end (1+ initial))))
+		(t (slice-helper (cdr sequence) start end (1+ initial)))))
+
+(defun slice (sequence start end)
+	(cond ((null sequence) '())
+		((> start end) '())
+		(t (slice-helper sequence start end))))
+
+; >>> (rotate '(a b c d e f g h) 3)
+; (D E F G H A B C)
+
+; >>> (rotate '(a b c d e f g h) -2)
+; (G H A B C D E F)
+
+(defun rotate (sequence position)
+	(if (< position 0) (setf position (+ (list-length sequence) position)))
+	(cond ((null sequence) '())
+		((< position 0) '())
+		((> position (list-length sequence)) sequence)
+		(t (append (split-after sequence position) (split-before sequence position)))))
+
+
+; >>> (remove-at '(a b c d) 2)
+; (A C D)
+
+(defun remove-at-helper (sequence position)
+	(cond ((null sequence) '())
+		((= position 1) (remove-at-helper (cdr sequence) (- position 1)))
+		(t (cons (car sequence) (remove-at-helper (cdr sequence) (- position 1)))))) 
+
+(defun remove-at (sequence position)
+	(if (< position 0) (setf position (+ (list-length position) position)))
+	(cond ((null sequence) '())
+		((or (> position (list-length sequence)) (<= position 0)) sequence)
+		(t (remove-at-helper sequence position))))
+
+; >>> (insert-at 'alfa '(a b c d) 2)
+; (A ALFA B C D)
+
+(defun insert-at-helper (element sequence position)
+	(cond ((null sequence) '())
+		((= position 1) (cons element sequence))
+		(t (cons (car sequence) (insert-at-helper element (cdr sequence) (- position 1))))))
+
+(defun insert-at (element sequence position)
+	(if (< position 0) (setf position (+ (list-length sequence) (+ position))))
+	(cond ((null sequence) '())
+		((or (> position (list-length sequence)) (< position 0)) sequence)
+		(t (insert-at-helper element sequence position))))
+
 
 
 
